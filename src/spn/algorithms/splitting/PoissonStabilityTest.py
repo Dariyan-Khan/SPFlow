@@ -12,7 +12,7 @@ import numpy
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from networkx.algorithms.components.connected import connected_components
-from networkx.convert_matrix import from_numpy_matrix
+from networkx.convert_matrix import from_numpy_array
 from pandas.core.frame import DataFrame
 from scipy import NINF
 from scipy.stats._continuous_distns import chi2

@@ -104,7 +104,7 @@ def plot_spn(spn, fname="plot.pdf", feature_labels = None):
     plt.margins(0, 0)
     plt.gca().xaxis.set_major_locator(NullLocator())
     plt.gca().yaxis.set_major_locator(NullLocator())
-    plt.savefig(fname, bbox_inches="tight", pad_inches=0, pdi=1000)
+    plt.savefig(fname, bbox_inches="tight", pad_inches=0, dpi=1000)
 
 
 def plot_spn2(spn, fname="plot.pdf"):

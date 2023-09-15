@@ -378,6 +378,10 @@ class RSPN():
             len_seq = self.get_len_sequence()
 
             print("Length of the sequence in mini_batch:", len_seq)
+            print(f"==>> data.shape: {data.shape}")
+            print(f"==>> self.num_variables: {self.num_variables}")
+            print(f"==>> self.len_sequence: {self.len_sequence}")
+
             assert data.shape[
                        1] == self.num_variables * self.len_sequence, "data columns not equal to number of variables times length of sequence"
             print("Evaluating rspn bottom up")

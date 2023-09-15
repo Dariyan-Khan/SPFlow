@@ -181,6 +181,8 @@ class Context:
 
     def add_domains(self, data):
         assert len(data.shape) == 2, "data is not 2D?"
+        print(f"==>> data.shape: {data.shape}") 
+        print(f"len(self.meta_types): {len(self.meta_types)}")
         assert data.shape[1] == len(self.meta_types), "Data columns and metatype size doesn't match"
 
         from spn.structure.StatisticalTypes import MetaType
