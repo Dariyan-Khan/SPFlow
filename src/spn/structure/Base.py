@@ -164,7 +164,7 @@ class Context:
         if meta_types is None and parametric_types is not None:
             self.meta_types = []
             for p in parametric_types:
-                self.meta_types.append(p.type.meta_type)
+                self.meta_types.append(p.type.meta_type) # defined in SPFlow/src/spn/structure/StatisticalTypes.py
             self.parametric_types = dict(zip(self.scope, self.parametric_types))
             
         self.meta_types = dict(zip(self.scope, self.meta_types ))
@@ -188,23 +188,39 @@ class Context:
         from spn.structure.StatisticalTypes import MetaType
 
         domain = []
+        has_discrete = False
+
+        print(f"self.meta_types.values(): {self.meta_types.values()}")
 
         for col, meta_type in enumerate(self.meta_types.values()):
+            print(f"len(self.meta_types.values()): {len(self.meta_types.values())}")
+            print(f"data[:, col]: {data[:, col]}")
+            
 
             feature_meta_type = meta_type
             min_val = np.nanmin(data[:, col])
             max_val = np.nanmax(data[:, col])
             domain_values = [min_val, max_val]
 
+            print(f"feature_meta_type: {feature_meta_type}")
 
             if feature_meta_type == MetaType.REAL or feature_meta_type == MetaType.BINARY:
+                print(f"==>> domain_values: {domain_values}")
                 domain.append(domain_values)
             elif feature_meta_type == MetaType.DISCRETE:
-                domain.append(np.arange(domain_values[0], domain_values[1] + 1, 1))
+                has_discrete = True
+                # a = np.arange(domain_values[0], domain_values[1] + 1, 1)
+                a = np.arange(0, domain_values[1] + 1, 1)
+                # print(f"==>> a: {a}")
+                domain.append(a)
             else:
                 raise Exception("Unkown MetaType " + str(feature_meta_type))
+        
+        if has_discrete:
+            self.domains = domain
+        else:
+            self.domains = np.asanyarray(domain)
 
-        self.domains = np.asanyarray(domain)
         self.domains = dict(zip(self.scope, self.domains))
 
         return self

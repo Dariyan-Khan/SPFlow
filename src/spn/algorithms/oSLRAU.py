@@ -217,6 +217,8 @@ def oSLRAU_eval_spn_top_down(root, oSLRAU_params, eval_functions=_node_top_down_
                     else:
                         update_mean_and_covariance(n, instances, oSLRAU_params, **args)  # works only for gaussian nodes
 
+                        #
+
             else:
                 result = func(n, param, **args)
 
