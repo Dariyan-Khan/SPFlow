@@ -134,6 +134,12 @@ class Max(Node):
         self.children = children
 
 
+class Placeholder(Leaf):
+    def __init__(self, placeholder_id, scope=[None]):
+        Leaf.__init__(self, scope=scope)
+        self.placeholder_id = placeholder_id
+
+
 class Out_Latent(Node):
     def __init__(self, out_latent_winner=None, children=None):
         Node.__init__(self)
@@ -201,6 +207,9 @@ class Context:
             min_val = np.nanmin(data[:, col])
             max_val = np.nanmax(data[:, col])
             domain_values = [min_val, max_val]
+            print(f"==>> domain_values: {domain_values}")
+
+
 
             print(f"feature_meta_type: {feature_meta_type}")
 

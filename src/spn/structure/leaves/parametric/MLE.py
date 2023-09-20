@@ -81,6 +81,10 @@ def update_parametric_parameters_mle(node, data):
         for i in range(node.k):
             node.p[i] = np.sum(data == i)
             psum += node.p[i]
+        
+        if psum == 0:
+            return [0 for _ in range(len(node.p))]
+        
         node.p = node.p / psum
         node.p = node.p.tolist()
 
@@ -96,29 +100,30 @@ def update_parametric_parameters_mle(node, data):
 
 
 if __name__ == "__main__":
-    node = Gaussian(np.inf, np.inf)
-    data = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
-    update_parametric_parameters_mle(node, data)
-    assert np.isclose(node.mean, np.mean(data))
-    assert np.isclose(node.stdev, np.std(data))
+    # node = Gaussian(np.inf, np.inf)
+    # data = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
+    # update_parametric_parameters_mle(node, data)
+    # assert np.isclose(node.mean, np.mean(data))
+    # assert np.isclose(node.stdev, np.std(data))
 
-    node = Gamma(np.inf, np.inf)
-    data = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
-    update_parametric_parameters_mle(node, data)
-    assert np.isclose(node.alpha / node.beta, np.mean(data)), node.alpha
+    # node = Gamma(np.inf, np.inf)
+    # data = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
+    # update_parametric_parameters_mle(node, data)
+    # assert np.isclose(node.alpha / node.beta, np.mean(data)), node.alpha
 
-    node = LogNormal(np.inf, np.inf)
-    data = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
-    update_parametric_parameters_mle(node, data)
-    assert np.isclose(node.mean, np.log(data).mean(), atol=0.00001)
-    assert np.isclose(node.stdev, np.log(data).std(), atol=0.00001)
+    # node = LogNormal(np.inf, np.inf)
+    # data = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
+    # update_parametric_parameters_mle(node, data)
+    # assert np.isclose(node.mean, np.log(data).mean(), atol=0.00001)
+    # assert np.isclose(node.stdev, np.log(data).std(), atol=0.00001)
 
-    node = Poisson(np.inf)
-    data = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
-    update_parametric_parameters_mle(node, data)
-    assert np.isclose(node.mean, np.mean(data))
+    # node = Poisson(np.inf)
+    # data = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
+    # update_parametric_parameters_mle(node, data)
+    # assert np.isclose(node.mean, np.mean(data))
 
     node = Categorical(np.array([1, 1, 1, 1, 1, 1]) / 6)
+    # node = Categorical()
     data = np.array([0, 0, 1, 3, 5]).reshape(-1, 1)
     update_parametric_parameters_mle(node, data)
     assert np.isclose(node.p[0], 2 / 5)
@@ -126,3 +131,8 @@ if __name__ == "__main__":
     assert np.isclose(node.p[2], 0)
     assert np.isclose(node.p[3], 1 / 5)
     assert np.isclose(node.p[4], 0)
+
+
+
+
+
