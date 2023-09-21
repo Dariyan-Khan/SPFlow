@@ -22,6 +22,7 @@ def initialise_mean_and_covariance(node, parent_result, data):
     m = x.shape[0]
     n = node.count
 
+    print(x)
     assert not np.isnan(x).any(), "data cointains NaN values"
 
     if node.cov is None:
