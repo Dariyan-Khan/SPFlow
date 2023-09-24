@@ -42,7 +42,11 @@ def merge_children(node, ci, cj, params, tot_nodes_len=None):
 
 
 def merge_into_mvleaf(node, ci, cj, scope, params, tot_nodes_len=None):
+    print("hehehe")
     if isinstance(ci, Leaf) and isinstance(cj, Leaf):
+        print(f"==>> type(ci): {type(ci)}")
+        print(f"==>> type(cj): {type(cj)}")
+        assert False 
         # mean = node.mean
         # mean = mean[scope[0]:scope[-1] + 1]
         # cov = node.cov

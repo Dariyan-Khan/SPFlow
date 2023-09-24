@@ -97,6 +97,7 @@ class RSPN():
 
         if update_template:
             print("Updating template spn")
+            # assert False, "RSPN line 100"
             self.update_template_spn(oSLRAU_params, nodes_to_update)
 
         return self.template_spn
@@ -377,10 +378,10 @@ class RSPN():
             self.set_len_sequence(data)
             len_seq = self.get_len_sequence()
 
-            print("Length of the sequence in mini_batch:", len_seq)
-            print(f"==>> data.shape: {data.shape}")
-            print(f"==>> self.num_variables: {self.num_variables}")
-            print(f"==>> self.len_sequence: {self.len_sequence}")
+            #print("Length of the sequence in mini_batch:", len_seq)
+            #print(f"==>> data.shape: {data.shape}")
+            #print(f"==>> self.num_variables: {self.num_variables}")
+            #print(f"==>> self.len_sequence: {self.len_sequence}")
 
             assert data.shape[
                        1] == self.num_variables * self.len_sequence, "data columns not equal to number of variables times length of sequence"

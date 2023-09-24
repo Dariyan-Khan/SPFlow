@@ -154,6 +154,7 @@ def oSLRAU(node, input_data, oSLRAU_params, update_structure, node_top_down_mpe=
 
 def oSLRAU_update_structure(root, oSLRAU_params, tot_nodes_len, nodes_to_update):
     for node in nodes_to_update:
+        # assert False, "OSLRAU.py line 157"
         update_structure(node, oSLRAU_params, tot_nodes_len)
 
     assign_ids(root)

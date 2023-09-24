@@ -92,7 +92,14 @@ _node_likelihood = {Sum: sum_likelihood, Product: prod_likelihood, Max: max_like
 
 
 def log_node_likelihood(node, *args, **kwargs):
+    tnode = _node_likelihood[type(node)]
+    # print(f"==>> _node_likelihood[type(node)]: {tnode.__name__}")
+
     probs = _node_likelihood[type(node)](node, *args, **kwargs)
+    # print(f"==>> probs: {probs}")
+    # print(f"==>> type(node): {type(node)}")
+    # print(f"==>> *args: {args}")
+    # print(f"==>> kwargs: {kwargs}")
     with np.errstate(divide="ignore"):
         if type(node) == In_Latent:
             nll = probs

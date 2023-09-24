@@ -18,8 +18,8 @@ def update_mean_and_covariance(node, parent_result, params, data, lls_per_node=N
     m = x.shape[0]
     n = node.count
 
-    print(f"type of node: {type(node)}")
-    print(f"isinstance(node, Leaf): {isinstance(node, Leaf)}")
+    # print(f"type of node: {type(node)}")
+    # print(f"isinstance(node, Leaf): {isinstance(node, Leaf)}")
 
     assert not np.isnan(x).any(), "data cointains NaN values"
     if isinstance(node, Product):
@@ -107,7 +107,7 @@ def update_mean_and_covariance(node, parent_result, params, data, lls_per_node=N
 
                 # print(f"Categorical p: {node.p}")
                 # print(f"node.name: {node.name}")
-                print(f"x: {x}")
+                # print(f"x: {x}")
                 #print(f"x.shape: {x.shape}")
                 x_flat = x.flatten().tolist()
                 value_counts = {int(value): x_flat.count(value) for value in set(x_flat)}
