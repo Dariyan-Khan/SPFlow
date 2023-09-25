@@ -1,7 +1,13 @@
 from spn.algorithms.oSLRAUStat import iterate_corrs
 import numpy as np
 from spn.structure.Base import Product, Sum, assign_ids, Leaf
-from spn.structure.leaves.parametric.Parametric import Categorical, Gaussian, Multivariate_Gaussian
+from spn.structure.leaves.parametric.Parametric import Categorical, Gaussian, Multivariate_Gaussian 
+
+def test_gaussian(*args):
+    for a in args:
+        if not(isinstance(a, Gaussian) or isinstance(a, Multivariate_Gaussian)):
+            return False
+    return True
 
 
 def update_structure(node, params, tot_nodes_len=None):
@@ -33,7 +39,10 @@ def merge_children(node, ci, cj, params, tot_nodes_len=None):
     scope = np.concatenate((ci.scope, cj.scope))
     scope.sort()
 
-    if len(scope) <= mvmaxscope:
+    print(f"==>> type(ci): {type(ci)}")
+    print(f"==>> type(cj): {type(cj)}")
+
+    if len(scope) <= mvmaxscope and test_gaussian(ci, cj):
         merge_into_mvleaf(node, ci, cj, scope, params, tot_nodes_len)
     else:
         merge_into_sumnode(node, ci, cj, scope, params, tot_nodes_len)
@@ -42,11 +51,9 @@ def merge_children(node, ci, cj, params, tot_nodes_len=None):
 
 
 def merge_into_mvleaf(node, ci, cj, scope, params, tot_nodes_len=None):
-    print("hehehe")
     if isinstance(ci, Leaf) and isinstance(cj, Leaf):
         print(f"==>> type(ci): {type(ci)}")
         print(f"==>> type(cj): {type(cj)}")
-        assert False 
         # mean = node.mean
         # mean = mean[scope[0]:scope[-1] + 1]
         # cov = node.cov
