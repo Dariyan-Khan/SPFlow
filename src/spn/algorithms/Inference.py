@@ -133,8 +133,12 @@ def likelihood(node, data, dtype=np.float64, node_likelihood=_node_likelihood, l
             return ll
 
         node_likelihood = {k: exec_funct for k in node_likelihood.keys()}
+        print(f"==>> node_likelihood: {node_likelihood}")
+
+
 
     result = eval_spn_bottom_up(node, node_likelihood, all_results=all_results, debug=debug, dtype=dtype, data=data)
+    print(f"==>> result: {result}")
 
     if lls_matrix is not None:
         for n, ll in all_results.items():

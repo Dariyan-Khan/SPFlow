@@ -31,6 +31,7 @@ class RSPN():
         self.len_sequence = None
 
     def build_initial_template(self, mini_batch, ds_context, len_sequence_varies=False):
+        
 
         if len_sequence_varies:
             assert type(mini_batch) is list, 'When sequence length varies, data is a list of numpy arrays'
@@ -214,6 +215,7 @@ class RSPN():
                                                                                 parent_result=instance_ids,
                                                                                 data=dummy_data,
                                                                                 lls_per_node=lls_per_node)
+        print(f"==>> in_latent_dict: {in_latent_dict}")
 
         for in_latent_node, instances in in_latent_dict.items():
             self.template_spn.out_latent_winner[instances] = in_latent_node.interface_index
@@ -413,6 +415,7 @@ class RSPN():
                     node_children = node.children.copy()
                     for child in node_children:
                         if type(child) == In_Latent:
+                            print(f"==>> child: {child}")
                             if len_sequence - i > 0:
                                 below_network_out_latent = unroll_spn[(len_sequence - i) - 1]
                                 below_interface_node = below_network_out_latent.children[child.interface_index]
