@@ -15,9 +15,13 @@ logger = logging.getLogger(__name__)
 
 EPSILON = np.finfo(float).eps
 
+def add_eps(x, eps=1e-6):
+    return np.log(np.exp(x) + np.array(eps))
+
 
 def leaf_marginalized_likelihood(node, data=None, dtype=np.float64):
-    assert len(node.scope) == 1, node.scope
+    # print(f"==>> node.scope: {node.scope}")
+    assert len(node.scope) == 1, node.scope 
     probs = np.ones((data.shape[0], 1), dtype=dtype)
     assert data.shape[1] >= 1
     data = data[:, node.scope]
@@ -28,46 +32,53 @@ def leaf_marginalized_likelihood(node, data=None, dtype=np.float64):
 
 
 def prod_log_likelihood(node, children, data=None, dtype=np.float64):
+    eps=np.array(1e-6)
     llchildren = np.concatenate(children, axis=1)
     assert llchildren.dtype == dtype
-    pll = np.sum(llchildren, axis=1).reshape(-1, 1)
+    pll = np.sum(llchildren, axis=1).reshape(-1, 1) #+ np.log(eps)
     pll[np.isinf(pll)] = np.finfo(pll.dtype).min
 
     return pll
 
 def out_latent_log_likelihood(node, children, data=None, dtype=np.float64):
-    llchildren = np.concatenate(children, axis=1)
+    eps = np.array(1e-6)
+    llchildren = np.concatenate(children, axis=1) ##+ np.log(eps)
     assert llchildren.dtype == dtype
     #print("node and llchildren", (node, llchildren))
     mll = np.max(llchildren, axis=1).reshape(-1, 1)
     return mll
 
 def prod_likelihood(node, children, data=None, dtype=np.float64):
-    llchildren = np.concatenate(children, axis=1)
+    eps = np.array(1e-6)
+    llchildren = np.concatenate(children, axis=1) #+ np.log(eps)
     assert llchildren.dtype == dtype
     return np.prod(llchildren, axis=1).reshape(-1, 1)
 
 def max_log_likelihood(node, children, data=None, dtype=np.float64):
-    llchildren = np.concatenate(children, axis=1)
+    eps = np.array(1e-6)
+    llchildren = add_eps(np.concatenate(children, axis=1)) #+ np.log(eps)
     assert llchildren.dtype == dtype
     #print("node and llchildren", (node, llchildren))
     mll = np.max(llchildren, axis=1).reshape(-1, 1)
     return mll
 
 def max_likelihood(node, children, data=None, dtype=np.float64):
-    llchildren = np.concatenate(children, axis=1)
+    eps = np.array(1e-6)
+    llchildren = np.concatenate(children, axis=1) # + np.log(eps)
     assert llchildren.dtype == dtype
     #print("node and llchildren", (node,llchildren))
     return np.max(llchildren, axis=1).reshape(-1, 1)
 
 
 def sum_log_likelihood(node, children, data=None, dtype=np.float64):
+    eps=1e-6
     llchildren = np.concatenate(children, axis=1)
     assert llchildren.dtype == dtype
 
     assert np.isclose(np.sum(node.weights), 1.0), "unnormalized weights {} for node {}".format(node.weights, node)
 
     b = np.array(node.weights, dtype=dtype)
+    b += eps
 
     sll = logsumexp(llchildren, b=b, axis=1).reshape(-1, 1)
 
@@ -75,12 +86,14 @@ def sum_log_likelihood(node, children, data=None, dtype=np.float64):
 
 
 def sum_likelihood(node, children, data=None, dtype=np.float64):
+    eps=1e-6
     llchildren = np.concatenate(children, axis=1)
     assert llchildren.dtype == dtype
 
     assert np.isclose(np.sum(node.weights), 1.0), "unnormalized weights {} for node {}".format(node.weights, node)
 
     b = np.array(node.weights, dtype=dtype)
+    b+= eps
 
     return np.dot(llchildren, b).reshape(-1, 1)
 
@@ -93,18 +106,14 @@ _node_likelihood = {Sum: sum_likelihood, Product: prod_likelihood, Max: max_like
 
 def log_node_likelihood(node, *args, **kwargs):
     tnode = _node_likelihood[type(node)]
-    # print(f"==>> _node_likelihood[type(node)]: {tnode.__name__}")
-
     probs = _node_likelihood[type(node)](node, *args, **kwargs)
-    # print(f"==>> probs: {probs}")
-    # print(f"==>> type(node): {type(node)}")
-    # print(f"==>> *args: {args}")
-    # print(f"==>> kwargs: {kwargs}")
+    
     with np.errstate(divide="ignore"):
+        eps = 1e-6
         if type(node) == In_Latent:
             nll = probs
         else:
-            nll = np.log(probs)
+            nll = np.log(probs + eps)
         nll[np.isinf(nll)] = np.finfo(nll.dtype).min
         assert not np.any(np.isnan(nll))
         return nll
@@ -133,12 +142,12 @@ def likelihood(node, data, dtype=np.float64, node_likelihood=_node_likelihood, l
             return ll
 
         node_likelihood = {k: exec_funct for k in node_likelihood.keys()}
-        print(f"==>> node_likelihood: {node_likelihood}")
+        # print(f"==>> node_likelihood: {node_likelihood}")
 
 
 
     result = eval_spn_bottom_up(node, node_likelihood, all_results=all_results, debug=debug, dtype=dtype, data=data)
-    print(f"==>> result: {result}")
+    # print(f"==>> result: {result}")
 
     if lls_matrix is not None:
         for n, ll in all_results.items():
