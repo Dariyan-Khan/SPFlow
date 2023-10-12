@@ -42,7 +42,7 @@ def merge_children(node, ci, cj, params, tot_nodes_len=None):
     print(f"==>> type(ci): {type(ci)}")
     print(f"==>> type(cj): {type(cj)}")
 
-    if len(scope) <= mvmaxscope and test_gaussian(ci, cj):
+    if len(scope) <= mvmaxscope: #and test_gaussian(ci, cj):
         merge_into_mvleaf(node, ci, cj, scope, params, tot_nodes_len)
     else:
         merge_into_sumnode(node, ci, cj, scope, params, tot_nodes_len)
