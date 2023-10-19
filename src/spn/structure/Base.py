@@ -15,6 +15,7 @@ class Node(object):
     def __init__(self):
         self.id = 0
         self.scope = []
+        self.count = 1
 
     @property
     def name(self):
@@ -89,8 +90,13 @@ class Sum(Node):
 
 
 class Product(Node):
-    def __init__(self, children=None):
+    def __init__(self, children=None, mean= None, cov = None):
         Node.__init__(self)
+        self.mean = mean
+        self.cov = cov
+        self.curr_mean = None
+        self.curr_cov = None
+
         if children is None:
             children = []
         self.children = children
@@ -131,6 +137,22 @@ class Max(Node):
         self.children = children
 
 
+class Placeholder(Leaf):
+    def __init__(self, placeholder_id, scope=[None]):
+        Leaf.__init__(self, scope=scope)
+        self.placeholder_id = placeholder_id
+
+
+class Out_Latent(Node):
+    def __init__(self, out_latent_winner=None, children=None):
+        Node.__init__(self)
+        self.out_latent_winner = out_latent_winner
+
+        if children is None:
+            children = []
+        self.children = children
+
+
 class Context:
     def __init__(self, meta_types=None, domains=None, parametric_types=None, scope=None, feature_names=None):
         self.meta_types = meta_types
@@ -151,7 +173,7 @@ class Context:
         if meta_types is None and parametric_types is not None:
             self.meta_types = []
             for p in parametric_types:
-                self.meta_types.append(p.type.meta_type)
+                self.meta_types.append(p.type.meta_type) # defined in SPFlow/src/spn/structure/StatisticalTypes.py
             self.parametric_types = dict(zip(self.scope, self.parametric_types))
 
         self.meta_types = dict(zip(self.scope, self.meta_types ))
@@ -167,29 +189,53 @@ class Context:
 
     def add_domains(self, data):
         assert len(data.shape) == 2, "data is not 2D?"
+        print(f"==>> data.shape: {data.shape}") 
+        print(f"len(self.meta_types): {len(self.meta_types)}")
         assert data.shape[1] == len(self.meta_types), "Data columns and metatype size doesn't match"
 
         from spn.structure.StatisticalTypes import MetaType
 
         domain = []
+        has_discrete = False
+
+        print(f"self.meta_types.values(): {self.meta_types.values()}")
 
         for col, meta_type in enumerate(self.meta_types.values()):
+            print(f"len(self.meta_types.values()): {len(self.meta_types.values())}")
+            print(f"data[:, col]: {data[:, col]}")
+            
 
             feature_meta_type = meta_type
             min_val = np.nanmin(data[:, col])
             max_val = np.nanmax(data[:, col])
             domain_values = [min_val, max_val]
+            print(f"==>> domain_values: {domain_values}")
 
             if feature_meta_type == MetaType.REAL or feature_meta_type == MetaType.BINARY or \
                     feature_meta_type == MetaType.UTILITY:
 
+
+
+            print(f"feature_meta_type: {feature_meta_type}")
+
+            if feature_meta_type == MetaType.REAL or feature_meta_type == MetaType.BINARY:
+                print(f"==>> domain_values: {domain_values}")
+
                 domain.append(domain_values)
             elif feature_meta_type == MetaType.DISCRETE:
-                domain.append(np.arange(domain_values[0], domain_values[1] + 1, 1))
+                has_discrete = True
+                # a = np.arange(domain_values[0], domain_values[1] + 1, 1)
+                a = np.arange(0, domain_values[1] + 1, 1)
+                # print(f"==>> a: {a}")
+                domain.append(a)
             else:
                 raise Exception("Unkown MetaType " + str(feature_meta_type))
+        
+        if has_discrete:
+            self.domains = domain
+        else:
+            self.domains = np.asanyarray(domain)
 
-        self.domains = np.asanyarray(domain)
         self.domains = dict(zip(self.scope, self.domains))
 
         return self

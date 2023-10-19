@@ -15,8 +15,9 @@ logger = logging.getLogger(__name__)
 
 def get_networkx_obj(spn, feature_labels=None):
     import networkx as nx
-    from spn.structure.Base import Sum, Product, Leaf, get_nodes_by_type, Max
-    from spn.structure.leaves.spmnLeaves.SPMNLeaf import Utility
+    from spn.structure.Base import Sum, Product, Leaf, get_nodes_by_type, Max, Out_Latent
+    from spn.structure.leaves.parametric.Parametric import In_Latent
+
     import numpy as np
 
     all_nodes = get_nodes_by_type(spn)
@@ -34,22 +35,22 @@ def get_networkx_obj(spn, feature_labels=None):
             label = "x"
             shape = 'o'
         elif isinstance(n, Max):
-            label = n.feature_name[0] + n.feature_name[1] + "D" + str(n.id)
-            shape = 's'
-        elif isinstance(n, Utility):
-            shape = 'd'
-            label = "U" + str(n.scope[0])
+
+            label = n.feature_name
+        elif isinstance(n, Out_Latent):
+            label = "OL"
+        elif isinstance(n, In_Latent):
+            label = "InL" + str(n.interface_index)
+
         else:
             if feature_labels is not None:
                 label = feature_labels[n.scope[0]]
                 shape = 'o'
             else:
                 label = "V" + str(n.scope[0])
-                shape = 'o'
+                
+        g.add_node(n.id)
 
-
-
-        g.add_node(n.id, s=shape)
         labels[n.id] = label
 
         if isinstance(n, Leaf):
@@ -119,7 +120,7 @@ def plot_spn(spn, fname="plot.pdf", feature_labels = None):
     plt.margins(0, 0)
     plt.gca().xaxis.set_major_locator(NullLocator())
     plt.gca().yaxis.set_major_locator(NullLocator())
-    plt.savefig(fname, bbox_inches="tight", pad_inches=0, pdi=1000)
+    plt.savefig(fname, bbox_inches="tight", pad_inches=0, dpi=1000)
 
 
 def plot_spn2(spn, fname="plot.pdf"):

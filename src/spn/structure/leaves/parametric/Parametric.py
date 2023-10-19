@@ -22,6 +22,13 @@ class Parametric(Leaf):
     def type(self):
         return self._type
 
+class In_Latent(Leaf):
+    def __init__(self, bin_value=0, log_inference_value=0, interface_index=None, scope=None):
+        Leaf.__init__(self, scope=scope)
+        self.bin_value = bin_value
+        self.log_inference_value = log_inference_value
+        self.interface_index = interface_index
+
 
 class Gaussian(Parametric):
     """
@@ -53,6 +60,29 @@ class Gaussian(Parametric):
     def variance(self):
         return self.stdev * self.stdev
 
+class Multivariate_Gaussian(Parametric):
+    """
+    Implements a multivariate gaussian distribution with parameters
+    \mu(mean)
+    \cov(covariance)
+    """
+
+    type = Type.REAL
+
+    def __init__(self, mean=None, cov=None, scope=None):
+        Parametric.__init__(self, type(self).type, scope=scope)
+
+        # parameters
+        self.mean = mean
+        self.cov = cov
+
+    @property
+    def params(self):
+        return {'mean': self.mean, 'cov': self.cov}
+
+    @property
+    def precision(self):
+        return 1.0 / self.cov
 
 class Uniform(Parametric):
     property_type = namedtuple("Uniform", "density start end")

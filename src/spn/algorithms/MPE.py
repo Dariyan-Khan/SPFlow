@@ -37,8 +37,10 @@ def mpe_sum(node, parent_result, data=None, lls_per_node=None, rand_gen=None):
     parent_result = merge_input_vals(parent_result)
 
     w_children_log_probs = np.zeros((len(parent_result), len(node.weights)))
+    eps = 1e-6
     for i, c in enumerate(node.children):
-        w_children_log_probs[:, i] = lls_per_node[parent_result, c.id] + np.log(node.weights[i])
+        # print(f"==>> node.weights[i]: {node.weights[i]}, mpe.py line 41")
+        w_children_log_probs[:, i] = lls_per_node[parent_result, c.id] + np.log(node.weights[i] + eps)
 
     max_child_branches = np.argmax(w_children_log_probs, axis=1)
 
@@ -110,7 +112,7 @@ _node_bottom_up_mpe = {}
 _node_bottom_up_mpe_log = {Sum: sum_log_likelihood, Product: prod_log_likelihood, Max: max_log_likelihood}
 
 def get_node_funtions():
-    return [_node_top_down_mpe, _node_bottom_up_mpe]
+    return (_node_top_down_mpe, _node_bottom_up_mpe)
 
 def log_node_bottom_up_mpe(node, *args, **kwargs):
     probs = _node_bottom_up_mpe[type(node)](node, *args, **kwargs)
