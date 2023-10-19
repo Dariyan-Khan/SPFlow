@@ -5,7 +5,7 @@
 
 # SPFlow: An Easy and Extensible Library for Sum-Product Networks
 
-**Look at rspn branch for latest rspn updates for oSLRAU**
+**Master branch is a copy of rspn branch, which is where the main updates are**
 
 SPFlow, an open-source Python library providing a simple interface to inference,
 learning  and  manipulation  routines  for  deep  and  tractable  probabilistic  models called Sum-Product Networks (SPNs).
