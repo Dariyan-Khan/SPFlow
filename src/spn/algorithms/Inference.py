@@ -37,7 +37,6 @@ def prod_log_likelihood(node, children, data=None, dtype=np.float64):
     assert llchildren.dtype == dtype
     pll = np.sum(llchildren, axis=1).reshape(-1, 1) #+ np.log(eps)
     pll[np.isinf(pll)] = np.finfo(pll.dtype).min
-
     return pll
 
 def out_latent_log_likelihood(node, children, data=None, dtype=np.float64):
@@ -57,17 +56,42 @@ def prod_likelihood(node, children, data=None, dtype=np.float64):
 def max_log_likelihood(node, children, data=None, dtype=np.float64):
     eps = np.array(1e-6)
     llchildren = add_eps(np.concatenate(children, axis=1)) #+ np.log(eps)
+
     assert llchildren.dtype == dtype
-    #print("node and llchildren", (node, llchildren))
-    mll = np.max(llchildren, axis=1).reshape(-1, 1)
+
+    if llchildren.shape[1] == 1:    # if only one child, then it is max.
+        return llchildren
+
+    assert data is not None, "data must be passed through to max nodes for proper evaluation."
+    decision_value_given = data[:, node.dec_idx]
+    max_value = np.argmax(llchildren, axis=1)
+    d_given = np.full(decision_value_given.shape[0], np.nan)
+    mapd = {node.dec_values[i]:i for i in range(len(node.dec_values))}
+    for k, v in mapd.items(): d_given[decision_value_given==k] = v
+    # if data contains a decision value use that otherwise use max
+    child_idx = np.select([np.isnan(d_given), True],
+                          [max_value, d_given]).astype(int)
+
+    mll = llchildren[np.arange(llchildren.shape[0]), child_idx].reshape(-1, 1)
+
+    # if decision value given is not in children, assign 0 probability
+    missing_dec_branch = np.logical_and(np.logical_not(np.isnan(decision_value_given)),np.isnan(d_given))
+    mll[missing_dec_branch] = np.finfo(mll.dtype).min
+
     return mll
 
 def max_likelihood(node, children, data=None, dtype=np.float64):
     eps = np.array(1e-6)
     llchildren = np.concatenate(children, axis=1) # + np.log(eps)
     assert llchildren.dtype == dtype
-    #print("node and llchildren", (node,llchildren))
-    return np.max(llchildren, axis=1).reshape(-1, 1)
+    # print("node and llchildren", (node,llchildren))
+    assert data is not None, "data must be passed through to max nodes for proper evaluation."
+    decision_value_given = data[:,node.dec_idx]
+    max_value = np.argmax(llchildren, axis=1)
+    # if data contains a decision value use that otherwise use max
+    child_idx = np.select([np.isnan(decision_value_given), True],
+                          [max_value, decision_value_given]).astype(int)
+    return llchildren[np.arange(llchildren.shape[0]), child_idx].reshape(-1, 1)
 
 
 def sum_log_likelihood(node, children, data=None, dtype=np.float64):
@@ -97,11 +121,9 @@ def sum_likelihood(node, children, data=None, dtype=np.float64):
 
     return np.dot(llchildren, b).reshape(-1, 1)
 
-
-
+  
 _node_log_likelihood = {Sum: sum_log_likelihood, Product: prod_log_likelihood, Max: max_log_likelihood, Out_Latent: out_latent_log_likelihood}
 _node_likelihood = {Sum: sum_likelihood, Product: prod_likelihood, Max: max_likelihood}
-
 
 
 def log_node_likelihood(node, *args, **kwargs):

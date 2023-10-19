@@ -30,20 +30,27 @@ def get_networkx_obj(spn, feature_labels=None):
 
         if isinstance(n, Sum):
             label = "+"
+            shape = 'o'
         elif isinstance(n, Product):
             label = "x"
+            shape = 'o'
         elif isinstance(n, Max):
+
             label = n.feature_name
         elif isinstance(n, Out_Latent):
             label = "OL"
         elif isinstance(n, In_Latent):
             label = "InL" + str(n.interface_index)
+
         else:
             if feature_labels is not None:
                 label = feature_labels[n.scope[0]]
+                shape = 'o'
             else:
                 label = "V" + str(n.scope[0])
+                
         g.add_node(n.id)
+
         labels[n.id] = label
 
         if isinstance(n, Leaf):
@@ -60,7 +67,7 @@ def get_networkx_obj(spn, feature_labels=None):
 
     return g, labels
 
-#added feature_labels
+
 def plot_spn(spn, fname="plot.pdf", feature_labels = None):
 
     import networkx as nx
@@ -78,18 +85,27 @@ def plot_spn(spn, fname="plot.pdf", feature_labels = None):
 
     # ax.invert_yaxis()
 
-    nx.draw(
-        g,
-        pos,
-        with_labels=True,
-        arrows=False,
-        node_color="#DDDDDD",
-        edge_color="#888888",
-        width=1,
-        node_size=100,
-        labels=labels,
-        font_size=4,
-    )
+    node_shapes = set((node_shape[1]["s"] for node_shape in g.nodes(data=True)))
+
+    for node_shape in node_shapes:
+        nx.draw(
+            g,
+            pos,
+            with_labels=True,
+            arrows=False,
+            node_color="#DDDDDD",
+            edge_color="#888888",
+            width=1,
+            node_size=180,
+            labels=labels,
+            font_size=4,
+            node_shape=node_shape,
+            nodelist=[
+                sNode[0] for sNode in filter(lambda x: x[1]["s"] == node_shape, g.nodes(data=True))
+            ]
+        )
+
+
     ax.collections[0].set_edgecolor("#333333")
     edge_labels = nx.draw_networkx_edge_labels(
         g, pos=pos, edge_labels=nx.get_edge_attributes(g, "weight"), font_size=5, clip_on=False, alpha=0.6

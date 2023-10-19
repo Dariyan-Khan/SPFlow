@@ -119,8 +119,11 @@ class Leaf(Node):
 
 
 class Max(Node):
-    def __init__(self, dec_values=None, children=None, feature_name = None):
+    def __init__(self, dec_idx=None, dec_values=None, children=None, feature_name = None):
         Node.__init__(self)
+
+        self.dec_idx = dec_idx
+
         if dec_values is None:
             dec_values = []
         self.dec_values = dec_values
@@ -172,9 +175,8 @@ class Context:
             for p in parametric_types:
                 self.meta_types.append(p.type.meta_type) # defined in SPFlow/src/spn/structure/StatisticalTypes.py
             self.parametric_types = dict(zip(self.scope, self.parametric_types))
-            
+
         self.meta_types = dict(zip(self.scope, self.meta_types ))
-        
 
     def get_meta_types_by_scope(self, scopes):
         return [self.meta_types[s] for s in scopes]
@@ -209,12 +211,16 @@ class Context:
             domain_values = [min_val, max_val]
             print(f"==>> domain_values: {domain_values}")
 
+            if feature_meta_type == MetaType.REAL or feature_meta_type == MetaType.BINARY or \
+                    feature_meta_type == MetaType.UTILITY:
+
 
 
             print(f"feature_meta_type: {feature_meta_type}")
 
             if feature_meta_type == MetaType.REAL or feature_meta_type == MetaType.BINARY:
                 print(f"==>> domain_values: {domain_values}")
+
                 domain.append(domain_values)
             elif feature_meta_type == MetaType.DISCRETE:
                 has_discrete = True
